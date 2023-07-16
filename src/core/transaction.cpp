@@ -478,6 +478,15 @@ VertexIndexIterator Transaction::GetVertexIndexIterator(const std::string& label
     return index->GetIterator(this, std::move(ks), std::move(ke), 0);
 }
 
+/**
+ * @brief 寻找属性 field_id 的值落在 key_start 到 key_end 之间的顶点
+ * 
+ * @param label_id 顶点的类型（person or film or company）
+ * @param field_id 被用于寻找顶点的属性类型（ID or name）
+ * @param key_start 带寻找定点的目标属性的最小值
+ * @param key_end 带寻找定点的目标属性的最大值
+ * @return VertexIndexIterator 
+ */
 VertexIndexIterator Transaction::GetVertexIndexIterator(size_t label_id, size_t field_id,
                                                         const FieldData& key_start,
                                                         const FieldData& key_end) {

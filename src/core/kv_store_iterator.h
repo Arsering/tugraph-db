@@ -40,8 +40,8 @@ class KvIterator {
     KvTable* table_;
     MDB_cursor* cursor_ = nullptr;
     bool valid_ = false;
-    MDB_val key_;
-    MDB_val value_;
+    MDB_val key_; // 当前cursor指向的KV pair的key
+    MDB_val value_; // 当前cursor指向的KV pair的value
     friend class KvTransaction;
 
     KvIterator& operator=(const KvIterator&) = delete;

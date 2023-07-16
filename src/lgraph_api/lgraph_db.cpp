@@ -19,6 +19,7 @@
 #include "lgraph/lgraph_txn.h"
 
 namespace lgraph_api {
+
 bool ShouldKillThisTask() { return lgraph::TaskTracker::GetInstance().ShouldKillCurrentTask(); }
 
 ThreadContextPtr GetThreadContext() {
@@ -34,6 +35,7 @@ bool ShouldKillThisTask(ThreadContextPtr ctx) {
         throw WriteNotAllowedError(                          \
             "Write transaction is not allowed in read-only " \
             "DB.");
+
 #define THROW_IF_INVALID() \
     if (!db_) throw InvalidGraphDBError();
 

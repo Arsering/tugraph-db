@@ -22,6 +22,7 @@ using json = nlohmann::json;
 
 namespace lgraph_api {
 
+
 Record::Record(const std::vector<std::pair<std::string, LGraphType>> &args) {
     for (auto arg : args) {
         auto key = arg.first;

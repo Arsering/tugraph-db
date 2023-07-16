@@ -43,6 +43,7 @@ target_include_directories(${TARGET_CPP_CLIENT_RPC} PRIVATE
         ${JNI_INCLUDE_DIRS})
 
 if (NOT (CMAKE_SYSTEM_NAME STREQUAL "Darwin"))
+        # 默认为动态链接
     target_link_libraries(${TARGET_CPP_CLIENT_RPC}
             PUBLIC
             # begin static linking
@@ -60,11 +61,16 @@ if (NOT (CMAKE_SYSTEM_NAME STREQUAL "Darwin"))
             -static-libstdc++
             -static-libgcc
             libstdc++fs.a
+            # (ssl crypto rt dl z） 库为动态链接
             -Wl,-Bdynamic
             ssl
+            # Crypto 库是C/C++的加密算法库，这个加密库很流行，基本上涵盖了市面上的各类加密解密算法
             crypto
+            # 运行时库（Runtime library）
             rt
+            # 动态加载库（Dynamically Loaded library）
             dl
+            # zlib（用于压缩）？？？
             z
             )
 else ()

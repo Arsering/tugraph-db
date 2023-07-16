@@ -60,6 +60,10 @@ class DeltaStore {
     std::pair<int8_t, Value> Get(const Value& key);
 };
 
+/**
+ * @brief lmdb 中的transaction 被封装为 TuGraph 中的一个 KvTransaction
+ * 
+ */
 class KvTransaction {
     friend class KvIterator;
     friend class KvStore;

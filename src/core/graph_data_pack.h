@@ -109,6 +109,13 @@ class KeyPacker {
         return r;
     }
 
+    /**
+     * @brief 将i复制到起始地址为p的内存空间中
+     * 
+     * @tparam N 
+     * @param p 
+     * @param i 
+     */
     template <int N>
     static inline void SetNByteIntId(void* p, int64_t i) {
         uint8_t* src = (uint8_t*)&i;
@@ -152,8 +159,8 @@ class KeyPacker {
      * @return  The node type.
      */
     static PackType GetNodeType(const Value& v) {
-        if (v.Size() == ::lgraph::_detail::VID_SIZE) return PackType::PACKED_DATA;
-        return GetPackType(v.Data() + PT_OFF);
+        if (v.Size() == ::lgraph::_detail::VID_SIZE) return PackType::PACKED_DATA; // 对于 packed node，key仅由 vid 组成
+        return GetPackType(v.Data() + PT_OFF); // 非 packed node 的key由 vid+pt_type+other 组成
     }
 
     /**
@@ -350,10 +357,10 @@ class EdgeValue {
     // 3-bit vid size: 0 to 5
     // 2-bit eid size: 0 to 3
     struct SizeIndicator {
-        uint8_t lid_size : 2;
-        uint8_t tid_indicator_size : 1;
-        uint8_t vid_size : 3;
-        uint8_t eid_size : 2;
+        uint8_t lid_size : 2; // lable id 的 长度（byte）
+        uint8_t tid_indicator_size : 1; // tid 的长度（byte）
+        uint8_t vid_size : 3; // vertex id 的长度（byte）
+        uint8_t eid_size : 2; // edge id 的长度（byte）
 
         SizeIndicator() = default;
         SizeIndicator(size_t l, size_t p, size_t v, size_t e)
@@ -552,7 +559,7 @@ class EdgeValue {
 
  private:
     Value v_;
-    size_t n_{};
+    size_t n_{}; // （出或入）edge个数
 
     /** Loads the number of edges. */
     void LoadN() { n_ = static_cast<size_t>(*(uint8_t*)v_.Data()); }
@@ -689,7 +696,7 @@ class EdgeValue {
                       const char*& prop, size_t& prop_size) const {
         const char* p = GetNthEdge(n);
         prop = ParseHeader(p, lid, tid, vid, eid);
-        prop_size = GetNthEdge(n + 1) - prop;
+        prop_size = GetNthEdge(n + 1) - prop; // 计算当前 edge 的 property 占用的存储空间大小
     }
 
     /**
@@ -734,9 +741,10 @@ class EdgeValue {
     size_t SearchEdge(LabelId lid, TemporalId tid, VertexId vid, EdgeId eid, bool& found) const {
         found = false;
         size_t beg = 0;
-        size_t end = n_;
+        size_t end = n_; 
+        // 使用二分法查找目标edge
         while (beg < end) {
-            size_t p = (beg + end) / 2;
+            size_t p = (beg + end) / 2; 
             LabelId ll;
             TemporalId pp;
             VertexId vv;
@@ -759,7 +767,7 @@ class EdgeValue {
             else if (vid > vv)
                 cmp = 1;
             else
-                cmp = eid < ee ? -1 : (eid > ee ? 1 : 0);
+                cmp = eid < ee ? -1 : (eid > ee ? 1 : 0); 
             // binary search
             if (cmp == 0) {
                 found = true;

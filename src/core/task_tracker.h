@@ -439,6 +439,7 @@ class AutoTaskTracker {
         task_id_ = thread_context_->BeginTask(is_long, is_write);
     }
 
+
     ~AutoTaskTracker() { thread_context_->EndTask(); }
 
     bool ShouldKillThisTask() const { return TaskTracker::ShouldKillTask(thread_context_); }

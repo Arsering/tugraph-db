@@ -24,6 +24,7 @@ using namespace std::chrono_literals;
 
 namespace lgraph {
 
+// TODO: 不懂这里的 write_set_ 是如何被初始化的
 DeltaStore::DeltaStore(const KvTable& table) : write_set_(table) {}
 
 void DeltaStore::Put(const Value& key, size_t version, const Value& value) {
@@ -59,7 +60,12 @@ void DeltaStore::Delete(const Value& key, size_t version) {
         write_set_.emplace(key.AsString(), std::move(packed_value));
     }
 }
-
+/**
+ * @brief 将 key 对应的 KVP 写入 DeltaStore 中，方便接下来的更新操作
+ * 
+ * @param key 
+ * @param version 
+ */
 void DeltaStore::GetForUpdate(const Value& key, size_t version) {
     auto it = write_set_.find(key);
     if (it != write_set_.end()) return;

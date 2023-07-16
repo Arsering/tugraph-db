@@ -401,10 +401,10 @@ class EdgeIteratorImpl {
                              EdgeId* eid_ptr = nullptr,
                              EdgeConstraintsChecker* ec = nullptr) {
         CheckPropSize(prop);
-        it.GotoClosestKey(KeyPacker::CreatePackedDataKey(esid.src));
-        if (!it.IsValid()) _detail::ThrowVertexNotExist<ET>();
-        const Value& k = it.GetKey();
-        if (KeyPacker::GetFirstVid(k) != esid.src) _detail::ThrowVertexNotExist<ET>();
+        it.GotoClosestKey(KeyPacker::CreatePackedDataKey(esid.src)); // 将光标 it 移动到 esid.src 这个key对应的KV pair的位置  
+        if (!it.IsValid()) _detail::ThrowVertexNotExist<ET>(); // 如果 esid.src 不存在，那么插入边的操作就失败了（没有src vertex）
+        const Value& k = it.GetKey(); // 获得 it 当前指向的KV pair 中的key
+        if (KeyPacker::GetFirstVid(k) != esid.src) _detail::ThrowVertexNotExist<ET>(); // 这一步是不是多余的啊？？
         // ok, source exists
         PackType pt = KeyPacker::GetNodeType(k);
         EdgeValue ev;

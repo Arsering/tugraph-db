@@ -526,6 +526,10 @@ static bool InitHtmlContentMap(
     return true;
 }
 
+/**
+ * @brief 为 Restful 编程中的几种原语（即 get/put/post/delete/options ）与其实际的处理逻辑绑定
+ * 
+ */
 void RestServer::init_server() {
     listener_.support(methods::GET,
                       std::bind(&RestServer::handle_get, this, std::placeholders::_1));

@@ -358,6 +358,13 @@ bool KvIterator::GotoKey(const Value& key) {
     return IsValid();
 }
 
+/**
+ * @brief 将cursor_移向给定的key处，如果key不存在则光标指向与与key最接近且key值比较大的KV pair
+ * 
+ * @param key 
+ * @return true 
+ * @return false 
+ */
 bool KvIterator::GotoClosestKey(const Value& key) {
     ThrowIfTaskKilled();
     key_ = key.MakeMdbVal();

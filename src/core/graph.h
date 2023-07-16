@@ -62,8 +62,8 @@ class Graph {
      * NOTE: This class is not locked. The user of this class must guarantee
      * that there is at most one writer.
      */
-    KvTable table_;
-    KvTable* meta_table_;
+    KvTable table_; // 存储的是顶点、边数据本身
+    KvTable* meta_table_; // 存储这个图数据集（可能是一个完整的图，也可能是多个图的集合）的元数据
 
  public:
     /**
@@ -190,7 +190,7 @@ class Graph {
     }
 
     /**
-     * Adds an edge
+     * Adds an edge (directed)
      *
      * \param [in,out]  txn     The transaction.
      * \param           src     Source of the edge.
@@ -208,7 +208,7 @@ class Graph {
     }
 
     /**
-     * Adds an edge
+     * Adds an edge (bidirection)
      *
      * \param [in,out]  txn     The transaction.
      * \param           src     Source of the edge.
@@ -229,6 +229,7 @@ class Graph {
         if (!constraints.empty()) {
             ec = std::make_unique<EdgeConstraintsChecker>(constraints);
         }
+        // 
         EdgeId eid = OutIteratorImpl::InsertEdge(esid, prop, it, nullptr, ec.get());
         EdgeSid esid_reverse = esid;
         esid_reverse.Reverse();

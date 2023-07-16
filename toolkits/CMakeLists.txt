@@ -5,6 +5,7 @@ project(TuGraph C CXX)
 
 set(TARGET_LGRAPH_IMPORT lgraph_import)
 
+# 通过指定的源文件列表构建出可执行目标文件
 add_executable(${TARGET_LGRAPH_IMPORT}
         lgraph_import.cpp
         ${LGRAPH_ROOT_DIR}/src/client/cpp/rpc/lgraph_rpc_client.cpp

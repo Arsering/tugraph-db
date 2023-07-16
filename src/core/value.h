@@ -99,7 +99,9 @@ class Value {
     }
 
     /**
-     * Construct a Value object with the specified size.
+     * Construct a Value object with the specified size. 
+     * 
+     * 会使用 malloc() 函数分配内存
      *
      * \param   s   Size of the memory block to allocate.
      */
@@ -292,7 +294,12 @@ class Value {
 #ifdef __GNUC__
 #pragma GCC diagnostic pop
 #endif
-
+    /**
+     * @brief 新建一个 Value 对象，属性值与 rhs 一致
+     * 
+     * @param rhs 
+     * @return Value 
+     */
     static Value MakeCopy(const Value& rhs) {
         Value v;
         v.Copy(rhs);
@@ -329,6 +336,9 @@ class Value {
     }
 
     /**
+     * @brief 用 rhs 的属性值覆盖当前 Value 对象的属性值
+     * 
+     *
      * Make a copy of the memory referred to by rhs. The new memory block is owned
      * by *this.
      *

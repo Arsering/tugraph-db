@@ -305,13 +305,21 @@ lgraph::AclManager::RoleInfo lgraph::Galaxy::GetRoleInfo(const std::string& curr
     return acl_->GetRoleInfo(txn, curr_user, role);
 }
 
+/**
+ * @brief 获得目标graph的引用
+ * 
+ * @param user 当前用户的名字
+ * @param graph 目标graph的名字
+ * @return lgraph::AccessControlledDB 
+ */
 lgraph::AccessControlledDB lgraph::Galaxy::OpenGraph(const std::string& user,
                                                      const std::string& graph) const {
     _HoldReadLock(acl_lock_);
+    // 先判断当前用户是否有权限访问这个 graph
     AccessLevel ar = acl_->GetAccessRight(user, user, graph);
     if (ar == AccessLevel::NONE)
         throw AuthError("User does not have access to the graph specified.");
-    AutoReadLock l2(graphs_lock_, GetMyThreadId());
+    AutoReadLock l2(graphs_lock_, GetMyThreadId()); // 即 TLSAutoReadLock
     return AccessControlledDB(graphs_->GetGraphRef(graph), ar, user);
 }
 
@@ -461,6 +469,11 @@ bool lgraph::Galaxy::IsAdmin(const std::string& user) const {
 
 lgraph::KillableRWLock& lgraph::Galaxy::GetReloadLock() { return reload_lock_; }
 
+/**
+ * @brief 初始化 Galaxy ：读取并初始化相关参数配置
+ * 
+ * @param create_if_not_exist 
+ */
 void lgraph::Galaxy::ReloadFromDisk(bool create_if_not_exist) {
     FMA_DBG_STREAM(logger_) << "Loading DB state from disk";
     _HoldWriteLock(reload_lock_);

@@ -63,12 +63,20 @@ class ThreadIdFetcher {
     int Get() { return id_; }
 };
 
+/**
+ * @brief 一个静态类
+ * 
+ */
 class ThreadLocalId {
     static thread_local ThreadIdFetcher id_;
 
  public:
     static inline int GetMyThreadId() { return id_.Get(); }
 };
-
+/**
+ * @brief Get the My Thread Id object. 这个ID是Lgraph自己分配的，用于控制thread的数量
+ * 
+ * @return int 
+ */
 static inline int GetMyThreadId() { return ThreadLocalId::GetMyThreadId(); }
 }  // namespace lgraph

@@ -33,6 +33,8 @@ class Transaction;
 
 namespace _detail {
 /**
+ * @brief 新建 Value 对象，属性值为 key + vid. 
+ *
  * Patch the key with the specified vid.
  *
  * \param           key     The key.

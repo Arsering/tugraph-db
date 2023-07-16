@@ -62,6 +62,13 @@ void lgraph::StateMachine::Stop() {
     backup_log_.reset();
 }
 
+/**
+ * @brief 判断本次请求是否包含 写操作
+ * 
+ * @param req 数据结构可在protobuf/ha.proto中发现
+ * @return true 
+ * @return false 
+ */
 bool lgraph::StateMachine::IsWriteRequest(const lgraph::LGraphRequest* req) {
     if (req->has_is_write_op()) {
         return req->is_write_op();
@@ -110,7 +117,13 @@ bool lgraph::StateMachine::IsWriteRequest(const lgraph::LGraphRequest* req) {
         }
     }
 }
-
+/**
+ * @brief 根据 RPC 请求的 源IP地址 判断server是否需要为其提供服务
+ * 
+ * @param controller 包含了client的身份信息，包括client的IP地址
+ * @return true 
+ * @return false 
+ */
 bool lgraph::StateMachine::IsFromLegalHost(::google::protobuf::RpcController* controller) const {
 #ifdef _WIN32
     return true;
@@ -199,13 +212,30 @@ void lgraph::StateMachine::TakeSnapshot(const std::string& path, bool truncate_l
     galaxy_->SaveSnapshot(path);
     if (truncate_log && backup_log_) backup_log_->TruncateLogs();
 }
-
+/**
+ * @brief 直接去调用 StateMachine::ApplyRequestDirectly 函数
+ * 
+ * @param is_write 未被使用
+ * @param req 
+ * @param resp 
+ * @param on_done 
+ * @return true 
+ * @return false 
+ */
 bool lgraph::StateMachine::DoRequest(bool is_write, const LGraphRequest* req, LGraphResponse* resp,
                                      google::protobuf::Closure* on_done) {
     MyDoneGuard done_guard(on_done);
     return ApplyRequestDirectly(req, resp);
 }
 
+/**
+ * @brief 根据 request 的具体内容执行相关操作，并将处理的结果放入 resp 中
+ * 
+ * @param req 
+ * @param resp 
+ * @return true 
+ * @return false 
+ */
 bool lgraph::StateMachine::ApplyRequestDirectly(const lgraph::LGraphRequest* req,
                                                 lgraph::LGraphResponse* resp) {
     resp->set_error_code(LGraphResponse::SUCCESS);
@@ -385,6 +415,12 @@ lgraph::AccessControlledDB lgraph::StateMachine::GetDB(const std::string& token,
     return galaxy_->OpenGraph(user, graph);
 }
 
+/**
+ * @brief 根据 req 中的 token 字段获得 user 名
+ * 
+ * @param lgraph_req 包含了这个 req 的对应 user 的 token 
+ * @return std::string 
+ */
 std::string lgraph::StateMachine::GetCurrUser(const LGraphRequest* lgraph_req) {
     return galaxy_->ParseAndValidateToken(lgraph_req->token());
 }
@@ -1038,6 +1074,14 @@ inline lgraph::plugin::CodeType GetPluginCodeType(const lgraph::LoadPluginReques
     return (lgraph::plugin::CodeType)type;
 }
 
+/**
+ * @brief 用于处理来自client的关于 plugin 的请求，包括加载、删除、罗列、执行的请求
+ * 
+ * @param lgraph_req 
+ * @param resp 
+ * @return true 
+ * @return false 
+ */
 bool lgraph::StateMachine::ApplyPluginRequest(const LGraphRequest* lgraph_req,
                                               LGraphResponse* resp) {
     using namespace web;
@@ -1107,6 +1151,7 @@ bool lgraph::StateMachine::ApplyPluginRequest(const LGraphRequest* lgraph_req,
                 (type == PluginManager::PluginType::CPP ? "[CPP_PLUGIN] " : "[PYTHON_PLUGIN] ") +
                     preq.name(),
                 true, is_write);
+            static thread_local std::string task_desc;
             BEG_AUDIT_LOG(user, req.graph(), lgraph::LogApiType::Plugin,
                                           is_write, req.DebugString());
             FMA_DBG_STREAM(logger_) << "Calling plugin " << preq.name() << " with param "

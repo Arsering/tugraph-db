@@ -12,6 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  */
 
+// 保证当前文件不会被包含两次
 #pragma once
 
 namespace lgraph {

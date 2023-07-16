@@ -3,7 +3,7 @@
 // Increment the version number if the proto definition is updated
 // ===============================================================
 syntax="proto2";
-package lgraph;
+package lgraph; // namespace = lgraph
 option cc_generic_services = true;
 
 message Snapshot {

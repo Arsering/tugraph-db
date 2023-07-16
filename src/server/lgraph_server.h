@@ -27,6 +27,10 @@
 #endif
 
 namespace lgraph {
+/**
+ * @brief 多线程之间的通信单元（类似一个pip）
+ * 
+ */
 class Signal {
     bool signal;
     std::mutex lock;
@@ -54,6 +58,10 @@ class Signal {
     }
 };
 
+/**
+ * @brief 继承了在protobuf文件夹中定义的 LGraphRPCService 类，并重载了父类中的 HandleRequest 函数
+ * 
+ */
 class RPCService : public lgraph::LGraphRPCService {
  public:
     explicit RPCService(lgraph::StateMachine *sm) : sm_(sm) {}

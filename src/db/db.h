@@ -24,7 +24,7 @@ namespace lgraph {
 class AccessControlledDB {
     ScopedRef<LightningGraph> graph_ref_;
     LightningGraph* graph_;
-    AutoReadLock graph_ref_lock_;
+    AutoReadLock graph_ref_lock_; // 即 TLSAutoReadLock
     AccessLevel access_level_;
     std::string user_;
 

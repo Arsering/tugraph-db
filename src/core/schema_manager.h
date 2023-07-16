@@ -33,7 +33,7 @@ namespace lgraph {
 class SchemaManager {
     KvTable table_;
     std::vector<Schema> schemas_;
-    std::unordered_map<std::string, size_t> name_to_idx_;
+    std::unordered_map<std::string, size_t> name_to_idx_; // schema对应的label name 与其在 schemas_ 中的位置的映射关系
     bool label_in_record_ = true;
 
  public:

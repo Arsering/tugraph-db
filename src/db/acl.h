@@ -31,7 +31,7 @@ namespace lgraph {
 typedef lgraph_api::AccessLevel AccessLevel;
 typedef lgraph_api::FieldAccessLevel FieldAccessLevel;
 
-// Manages ACL. modification must be sequentail, only one writer is allowed
+// Manages ACL (Access Control List). modification must be sequentail, only one writer is allowed
 // at the same time.
 // Role-based access control. There are users, roles and graphs. Each user
 // has one or more roles. Each role has some access to multiple graphs.

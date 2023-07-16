@@ -72,14 +72,14 @@ class Transaction {
     bool read_only_ = false;
 
     LightningGraph* db_ = nullptr;
-    ScopedRef<SchemaInfo> managed_schema_ptr_;
+    ScopedRef<SchemaInfo> managed_schema_ptr_; // 与db_中的是同一个
     SchemaInfo* curr_schema_ = nullptr;
-    graph::Graph* graph_ = nullptr;
+    graph::Graph* graph_ = nullptr; // 与db_中的是同一个
 
-    IndexManager* index_manager_ = nullptr;
-    BlobManager* blob_manager_ = nullptr;
+    IndexManager* index_manager_ = nullptr; // 与db_中的是同一个
+    BlobManager* blob_manager_ = nullptr; // 与db_中的是同一个
     std::vector<IteratorBase*> iterators_;
-    FullTextIndex* fulltext_index_;
+    FullTextIndex* fulltext_index_; // 与db_中的是同一个
     std::vector<FTIndexEntry> fulltext_buffers_;
     void ThrowIfReadOnlyTxn() const {
         if (read_only_)
@@ -661,6 +661,7 @@ class Transaction {
               const std::vector<DataT>& values) {
         if (fields.size() != values.size())
             throw InputError("Number of fields and data values do not match");
+        lgraph_api::add_transaction_id();
         return AddVertex(label, fields.size(), fields.data(), values.data());
     }
 

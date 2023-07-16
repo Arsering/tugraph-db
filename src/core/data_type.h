@@ -60,12 +60,20 @@ enum LogicalOp { LBR_EMPTY = 0, LBR_AND = 1, LBR_OR = 2, LBR_NOT = 3, LBR_XOR = 
 //===============================
 struct EdgeSid {
     EdgeSid() : src(0), dst(0), lid(0), tid(0) {}
+    /**
+     * @brief Construct a new Edge Sid object
+     * 
+     * @param s 边的始点
+     * @param d 边的终点
+     * @param l 边的label id
+     * @param t 不知道啊
+     */
     EdgeSid(int64_t s, int64_t d, uint16_t l, int64_t t) : src(s), dst(d), lid(l), tid(t) {}
 
-    int64_t src;
-    int64_t dst;
-    uint16_t lid;
-    int64_t tid;
+    int64_t src; // 边的始点
+    int64_t dst; // 边的终点
+    uint16_t lid; // 边的label id
+    int64_t tid; // 不知道啊
 
     void Reverse() { std::swap(src, dst); }
 

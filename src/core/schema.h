@@ -63,17 +63,17 @@ class Schema {
     LabelId label_id_ = 0;
     bool label_in_record_ = true;  // whether to store label id in record
     bool deleted_ = false;
-    bool is_vertex_ = false;
+    bool is_vertex_ = false; // schema是一个顶点还是边
 
-    std::vector<_detail::FieldExtractor> fields_;
-    std::unordered_map<std::string, size_t> name_to_idx_;
+    std::vector<_detail::FieldExtractor> fields_; // 保存所有field的信息，比如名字、数据类型、索引结构……
+    std::unordered_map<std::string, size_t> name_to_idx_; // 维护field名字与其在 fields_ 中的位置映射关系
     size_t n_fixed_ = 0;
     size_t n_variable_ = 0;
     size_t n_nullable_ = 0;
     size_t v_offset_start_ = 0;
 
-    std::unordered_set<size_t> indexed_fields_;
-    std::vector<size_t> blob_fields_;
+    std::unordered_set<size_t> indexed_fields_; // 记录所有有索引的field在 fields_ 中的位置
+    std::vector<size_t> blob_fields_; // 记录哪些field的数据类型是Blob
     // When Schema is EDGE type, `primary_field_` should be int64.
     std::string primary_field_{};
     // When Schema is VERTEX type, `edge_constraints_` is always empty.

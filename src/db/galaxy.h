@@ -60,10 +60,10 @@ class Galaxy {
     // created at construction. This avoids testing for null pointers.
     std::shared_ptr<GlobalConfig> dummy_global_config_;
     std::unique_ptr<KvStore> store_;
-    std::unique_ptr<AclManager> acl_;
+    std::unique_ptr<AclManager> acl_; // access control: 用户权限控制
     mutable KillableRWLock acl_lock_;
     std::unique_ptr<GraphManager> graphs_;
-    mutable KillableRWLock graphs_lock_;
+    mutable KillableRWLock graphs_lock_; // 本galaxy中所有的 graph 数据的读写控制锁
     TokenManager token_manager_;
     KvTable db_info_table_;
     KvTable ip_whitelist_table_;

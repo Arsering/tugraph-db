@@ -123,7 +123,17 @@ void LGraphServer::AdjustConfig() {
         std::shared_ptr<fma_common::LogDevice> log_device(
             new fma_common::LeveledLogDevice(devices));
         fma_common::Logger::Get().SetDevice(log_device);
+
+        // starting breaddown log
+        auto breakdown_device = std::shared_ptr<fma_common::LogDevice>(new fma_common::RotatingFileLogDevice(
+                 config_->log_dir, "breakdown.log"));
+        fma_common::Logger::GetMine().SetDevice(breakdown_device);
     }
+
+    // starting breaddown log
+    fma_common::Logger::GetMine().SetFormatter(
+        std::shared_ptr<fma_common::LogFormatter>(new fma_common::PreciseTimedModuleLogFormatter()));
+
     fma_common::Logger::Get().SetFormatter(
         std::shared_ptr<fma_common::LogFormatter>(new fma_common::TimedModuleLogFormatter()));
 
@@ -162,6 +172,7 @@ void LGraphServer::AdjustConfig() {
         lgraph::AuditLogger::GetInstance().Init(config_->audit_log_dir,
                                                 config_->audit_log_expire);
     lgraph::AuditLogger::GetInstance().SetEnable(config_->enable_audit_log);
+
 }
 
 int LGraphServer::MakeStateMachine() {

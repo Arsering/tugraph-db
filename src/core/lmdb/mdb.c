@@ -4361,7 +4361,7 @@ mdb_env_create(MDB_env **env)
 	e->me_wmutex->semid = -1;
 #endif
 	e->me_pid = getpid();
-	GET_PAGESIZE(e->me_os_psize);
+	GET_PAGESIZE(e->me_os_psize); // get size of a single memory page (the typical value is)
 	VGMEMP_CREATE(e,0,0);
 	*env = e;
 	return MDB_SUCCESS;

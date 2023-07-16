@@ -11,7 +11,6 @@ add_compile_options(-Wno-unused-local-typedefs)
 add_compile_options(-Wno-sign-compare)
 add_compile_options(-Wno-maybe-uninitialized)
 
-
 add_executable(unit_test
         main.cpp
         ut_utils.cpp

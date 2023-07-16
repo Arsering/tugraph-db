@@ -48,7 +48,7 @@ class KvStore {
     size_t db_size_;
     bool durable_;
 
-    std::queue<KvTransaction*> queue_;
+    std::queue<KvTransaction*> queue_; // 用于保存哪些需要 commit 的transaction
     std::mutex queue_mutex_;
     std::condition_variable queue_cv_;
     std::atomic<bool> finished_;
@@ -192,6 +192,7 @@ class KvStore {
     static void UpdateLastOpIdWithStoredValue(int64_t stored) {
         int64_t existing = last_op_id_.load(std::memory_order_acquire);
         while (existing < stored) {
+            // compare_exchange_strong: 如果 last_op_id_ == existing 将 stored 赋值给 last_op_id_；则将现有的 last_op_id_ 赋值给 existing
             if (last_op_id_.compare_exchange_strong(existing, stored)) break;
         }
     }

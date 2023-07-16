@@ -249,7 +249,7 @@ class GCRefCountedPtr {
         if (!obj->HasReference()) {
             FMA_DBG_ASSERT(obj->GetManagerRef() == 0);
             if (before_destroy) before_destroy(obj->Get());
-            delete obj;
+            delete obj; // 调用析构函数
             if (after_destroy) after_destroy();
             return;
         }
@@ -257,6 +257,7 @@ class GCRefCountedPtr {
         auto& scheduler = fma_common::TimedTaskScheduler::GetInstance();
         scheduler.ScheduleReccurringTask(
             1000, [this, obj, before_destroy, after_destroy](fma_common::TimedTask* self) {
+                // 以防真正的GC过程被多次执行
                 if (!obj) {
                     self->Cancel();
                     return;

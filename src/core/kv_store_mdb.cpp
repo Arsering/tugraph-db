@@ -37,6 +37,7 @@ void KvStore::Open(bool create_if_not_exist) {
     }
     THROW_ON_ERR(mdb_env_create(&env_));
     THROW_ON_ERR(mdb_env_set_mapsize(env_, db_size_));
+    // set the maximum number of named databases you want to support
     THROW_ON_ERR(mdb_env_set_maxdbs(env_, 255));
     THROW_ON_ERR(mdb_env_set_maxreaders(env_, 1200));
 #if LGRAPH_SHARE_DIR
@@ -195,6 +196,10 @@ void KvStore::WarmUp(size_t* size) {
     if (size) *size = s;
 }
 
+/**
+ * @brief 疑似是实际执行所有的 transaction ?? (cannot be sure)
+ * 
+ */
 void KvStore::ServeValidation() {
     while (true) {
         std::unique_lock<std::mutex> queue_lock(queue_mutex_);

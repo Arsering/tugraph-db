@@ -21,6 +21,7 @@
 #include "lgraph/lgraph_txn.h"
 #include "lgraph/lgraph_types.h"
 #include "lgraph/lgraph_vertex_iterator.h"
+#include "lgraph/lgraph_mine.h"
 
 #ifdef _WIN32
 #pragma warning(disable : 4251)

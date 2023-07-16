@@ -39,6 +39,9 @@ Transaction::Transaction(lgraph::Transaction&& impl)
 
 Transaction::Transaction(Transaction&& rhs) = default;
 Transaction& Transaction::operator=(Transaction&& rhs) = default;
+/**
+ * 析构函数
+*/
 Transaction::~Transaction() {}
 
 VertexIterator Transaction::GetVertexIterator() {
@@ -333,6 +336,14 @@ VertexIterator Transaction::GetVertexByUniqueIndex(const std::string& label_name
     return VertexIterator(txn_->GetVertexIterator(iit.GetVid()), txn_);
 }
 
+/**
+ * @brief 寻找属性 field_id 的值为 field_value 的顶点
+ * 
+ * @param label_name 顶点的类型（person or film or company）
+ * @param field_name 此处被用来寻找顶点的属性类型（vid or name）
+ * @param field_value 此处被用来寻找顶点的属性值
+ * @return OutEdgeIterator 
+ */
 OutEdgeIterator Transaction::GetEdgeByUniqueIndex(const std::string& label_name,
                                                   const std::string& field_name,
                                                   const FieldData& field_value) {
@@ -345,6 +356,14 @@ OutEdgeIterator Transaction::GetEdgeByUniqueIndex(const std::string& label_name,
     return GetOutEdgeIterator(euid, false);
 }
 
+/**
+ * @brief 寻找属性 field_id 的值为 field_value 的顶点
+ * 
+ * @param label_id 顶点的类型ID（person or film or company）
+ * @param field_id 此处被用来寻找顶点的属性类型ID（vid or name）
+ * @param field_value 此处被用来寻找顶点的属性值
+ * @return VertexIterator 
+ */
 VertexIterator Transaction::GetVertexByUniqueIndex(size_t label_id, size_t field_id,
                                                    const FieldData& field_value) {
     ThrowIfInvalid();

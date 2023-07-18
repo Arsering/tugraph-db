@@ -661,7 +661,6 @@ class Transaction {
               const std::vector<DataT>& values) {
         if (fields.size() != values.size())
             throw InputError("Number of fields and data values do not match");
-        lgraph_api::add_transaction_id();
         return AddVertex(label, fields.size(), fields.data(), values.data());
     }
 

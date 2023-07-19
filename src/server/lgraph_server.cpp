@@ -125,14 +125,26 @@ void LGraphServer::AdjustConfig() {
         fma_common::Logger::Get().SetDevice(log_device);
 
         // starting breaddown log
-        auto breakdown_device = std::shared_ptr<fma_common::LogDevice>(new fma_common::RotatingFileLogDevice(
-                 config_->log_dir, "breakdown.log"));
+        auto breakdown_device = std::shared_ptr<fma_common::LogDevice>(
+            new fma_common::RotatingFileLogDevice(config_->log_dir, "breakdown.log", max_log_size));
         fma_common::Logger::GetMine().SetDevice(breakdown_device);
     }
 
     // starting breaddown log
-    fma_common::Logger::GetMine().SetFormatter(
-        std::shared_ptr<fma_common::LogFormatter>(new fma_common::PreciseTimedModuleLogFormatter()));
+    fma_common::Logger::GetMine().SetFormatter(std::shared_ptr<fma_common::LogFormatter>(
+        new fma_common::PreciseTimedModuleLogFormatter()));
+
+    char head_t[1024];
+    auto t = std::chrono::system_clock::now();
+    time_t tnow = std::chrono::system_clock::to_time_t(t);
+    tm *date = std::localtime(&tnow);
+    size_t s = std::strftime(head_t, 24, "%Y%m%d%H%M%S", date);
+    std::string head = head_t;
+    head +=
+        "Log Format: {\%d\%h\%m\%s.\%ms}: {[plugin name]} {callID-TransactionID-StepID: "
+        "start(1)/end(0)}";
+    head = "Date: " + head;
+    lgraph_api::log_breakdown_head(head);
 
     fma_common::Logger::Get().SetFormatter(
         std::shared_ptr<fma_common::LogFormatter>(new fma_common::TimedModuleLogFormatter()));
@@ -169,10 +181,8 @@ void LGraphServer::AdjustConfig() {
         lgraph::AuditLogger::GetInstance().Init(config_->db_dir + "/_audit_log_",
                                                 config_->audit_log_expire);
     else
-        lgraph::AuditLogger::GetInstance().Init(config_->audit_log_dir,
-                                                config_->audit_log_expire);
+        lgraph::AuditLogger::GetInstance().Init(config_->audit_log_dir, config_->audit_log_expire);
     lgraph::AuditLogger::GetInstance().SetEnable(config_->enable_audit_log);
-
 }
 
 int LGraphServer::MakeStateMachine() {
@@ -231,8 +241,7 @@ int LGraphServer::Start() {
     // start
     int ret = 0;
     try {
-        if (MakeStateMachine() == -1)
-            return -1;
+        if (MakeStateMachine() == -1) return -1;
 
 #ifndef _WIN32
         // set REST thread limit
@@ -244,8 +253,7 @@ int LGraphServer::Start() {
                 brpc::FLAGS_usercode_in_pthread = true;
             }
             // start RPC service
-            if (StartRpcService() == -1)
-                return -1;
+            if (StartRpcService() == -1) return -1;
             // start RPC server
             std::string rpc_addr =
                 fma_common::StringFormatter::Format("{}:{}", config_->bind_host, config_->rpc_port);

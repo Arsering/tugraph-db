@@ -17,21 +17,22 @@
  */
 
 #pragma once
-
-#include <chrono>
 #include <cstdint>
-#include <ctime>
+#include <map>
+#include <atomic>
 #include <string>
 #include <mutex>
 
-
 namespace lgraph_api {
 
+static std::map<std::string, std::atomic<size_t>> call_counts_yz;
+
 void log_breakdown(std::string& log_info);
+void log_breakdown_head(std::string& log_info);
 
 std::string& get_call_desc();
 
-bool set_call_desc(std::string& call_desc_new);
+bool set_call_desc(const std::string& call_desc_new);
 
 void set_call_id(size_t call_id);
 

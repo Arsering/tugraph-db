@@ -591,6 +591,10 @@ void lgraph::SingleLanguagePluginManager::LoadAllPlugins(KvTransaction& txn) {
             // load plugin
             impl_->LoadPlugin("", name, pinfo.get());
             procedures_.emplace(std::make_pair(name, pinfo.release()));
+
+            // For breakdown
+            lgraph_api::call_counts_yz.emplace(std::make_pair(name, 0));
+
             FMA_DBG() << "Loaded plugin " << name;
         } catch (...) {
             std::throw_with_nested(InternalError("Failed to load plugin [{}].", name));

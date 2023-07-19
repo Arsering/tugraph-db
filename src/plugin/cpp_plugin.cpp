@@ -33,8 +33,7 @@ CppPluginManagerImpl::CppPluginManagerImpl(LightningGraph* db, const std::string
 
 CppPluginManagerImpl::~CppPluginManagerImpl() {}
 
-void CppPluginManagerImpl::DoCall(lgraph_api::Transaction* txn,
-                                  const std::string& user,
+void CppPluginManagerImpl::DoCall(lgraph_api::Transaction* txn, const std::string& user,
                                   AccessControlledDB* db_with_access_control,
                                   const std::string name, const PluginInfoBase* pinfo,
                                   const std::string& request, double timeout, bool in_process,
@@ -46,14 +45,38 @@ void CppPluginManagerImpl::DoCall(lgraph_api::Transaction* txn,
     // TODO: support in_process // NOLINT
     bool r = false;
     const PluginInfo* info = dynamic_cast<const PluginInfo*>(pinfo);
+
+    // For breakdown
+    auto it = lgraph_api::call_counts_yz.find(name);
+    size_t call_ID = it->second.fetch_add(1);
+    // std::stringstream str(name.substr(17, name.length() - 4));
+    // std::string desc = '';
+    // std::string tok;
+    // int num_part = 0;
+    // while (getline(str, tok, '_')) {
+    //     desc += tok.at(0);
+    //     num_part += 1;
+    //     if (num_part == 2) break;
+    // }
+    // desc += "_" + name.substr(17, name.length() - 4);
+    
+    lgraph_api::set_call_desc(name.substr(17, name.length() - 4));
+    lgraph_api::set_call_id(call_ID);
+    std::string log = "1";  // start
+    lgraph_api::log_breakdown(log);
+
     if (info->func) {
         PluginFunc* procedure = info->func;
         lgraph_api::GraphDB db(db_with_access_control, info->read_only);
         r = procedure(db, request, output);
     } else if (info->func_txn && txn != nullptr) {
-        PluginFuncInTxn * procedure = info->func_txn;
+        PluginFuncInTxn* procedure = info->func_txn;
         r = procedure(*txn, request, output);
     }
+    // For breakdown
+    log = "0";  // end
+    lgraph_api::log_breakdown(log);
+
     if (!r) throw InputError(FMA_FMT("Plugin returned false. Output: {}.", output));
 }
 

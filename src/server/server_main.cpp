@@ -21,7 +21,7 @@ class LGraphDaemon : public Service {
 
  public:
     explicit LGraphDaemon(std::shared_ptr<lgraph::GlobalConfig> config)
-        : Service("lgraph", "./lgraph.pid"), server_(config) {}
+        : Service("lgraph", "/data/lgraph.pid"), server_(config) {}
 
     int Run() override {
         server_.Start();

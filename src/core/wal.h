@@ -47,7 +47,7 @@ class Wal {
     // this file records only meta-operations like opening and dropping tables
     SyncFile dbi_file_;
     mdb_size_t curr_txn_id_;
-    std::atomic<int64_t> op_id_;    // -1 indicates completion of current txn
+    std::atomic<int64_t> op_id_;  // -1 indicates completion of current txn
 
     std::mutex mutex_;
     std::condition_variable cond_;
@@ -61,9 +61,7 @@ class Wal {
     std::thread wal_flusher_;
 
  public:
-    Wal(MDB_env* env,
-        const std::string& log_dir,
-        size_t log_rotate_interval_ms,
+    Wal(MDB_env* env, const std::string& log_dir, size_t log_rotate_interval_ms,
         size_t batch_commit_interval_ms);
 
     ~Wal();
@@ -72,16 +70,14 @@ class Wal {
 
     void WriteKvDel(MDB_dbi, const Value& key);
 
-    void WriteTableOpen(MDB_dbi dbi,
-                        const std::string& name, const ComparatorDesc& desc);
+    void WriteTableOpen(MDB_dbi dbi, const std::string& name, const ComparatorDesc& desc);
 
     void WriteTableDrop(MDB_dbi dbi);
 
     void WriteTxnBegin(mdb_size_t txn_id, bool is_child = false);
 
     // write txn commit message
-    std::future<void> WriteTxnCommit(mdb_size_t txn_id,
-                                     bool is_child);
+    std::future<void> WriteTxnCommit(mdb_size_t txn_id, bool is_child);
 
     void WriteTxnAbort(mdb_size_t txn_id, bool is_child = false);
 
@@ -110,4 +106,3 @@ class Wal {
 };
 
 }  // namespace lgraph
-

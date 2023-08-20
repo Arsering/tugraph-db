@@ -37,7 +37,7 @@ namespace lgraph_api {
 Transaction::Transaction(lgraph::Transaction&& impl)
     : txn_(new lgraph::Transaction(std::move(impl))) {
     // For breakdown
-    lgraph_api::add_transaction_id();
+    lgraph_api::yz_logger::add_transaction_id();
 }
 
 Transaction::Transaction(Transaction&& rhs) = default;

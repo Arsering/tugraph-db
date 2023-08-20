@@ -47,23 +47,13 @@ void CppPluginManagerImpl::DoCall(lgraph_api::Transaction* txn, const std::strin
     const PluginInfo* info = dynamic_cast<const PluginInfo*>(pinfo);
 
     // For breakdown
-    auto it = lgraph_api::call_counts_yz.find(name);
+    auto it = lgraph_api::yz_logger::call_counts_yz.find(name);
     size_t call_ID = it->second.fetch_add(1);
-    // std::stringstream str(name.substr(17, name.length() - 4));
-    // std::string desc = '';
-    // std::string tok;
-    // int num_part = 0;
-    // while (getline(str, tok, '_')) {
-    //     desc += tok.at(0);
-    //     num_part += 1;
-    //     if (num_part == 2) break;
-    // }
-    // desc += "_" + name.substr(17, name.length() - 4);
-    
-    lgraph_api::set_call_desc(name.substr(17, name.length() - 4));
-    lgraph_api::set_call_id(call_ID);
+
+    lgraph_api::yz_logger::set_call_desc(name.substr(17, name.length() - 4));
+    lgraph_api::yz_logger::set_call_id(call_ID);
     std::string log = "1";  // start
-    lgraph_api::log_breakdown(log);
+    LOG_BREAKDOWN(log);
 
     if (info->func) {
         PluginFunc* procedure = info->func;
@@ -75,7 +65,7 @@ void CppPluginManagerImpl::DoCall(lgraph_api::Transaction* txn, const std::strin
     }
     // For breakdown
     log = "0";  // end
-    lgraph_api::log_breakdown(log);
+    LOG_BREAKDOWN(log);
 
     if (!r) throw InputError(FMA_FMT("Plugin returned false. Output: {}.", output));
 }

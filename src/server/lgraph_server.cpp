@@ -123,28 +123,8 @@ void LGraphServer::AdjustConfig() {
         std::shared_ptr<fma_common::LogDevice> log_device(
             new fma_common::LeveledLogDevice(devices));
         fma_common::Logger::Get().SetDevice(log_device);
-
-        // starting breaddown log
-        auto breakdown_device = std::shared_ptr<fma_common::LogDevice>(
-            new fma_common::RotatingFileLogDevice(config_->log_dir, "breakdown.log", max_log_size));
-        fma_common::Logger::GetMine().SetDevice(breakdown_device);
     }
-
-    // starting breaddown log
-    fma_common::Logger::GetMine().SetFormatter(std::shared_ptr<fma_common::LogFormatter>(
-        new fma_common::PreciseTimedModuleLogFormatter()));
-
-    char head_t[1024];
-    auto t = std::chrono::system_clock::now();
-    time_t tnow = std::chrono::system_clock::to_time_t(t);
-    tm *date = std::localtime(&tnow);
-    size_t s = std::strftime(head_t, 24, "%Y%m%d%H%M%S", date);
-    std::string head = head_t;
-    head +=
-        "Log Format: {\%d\%h\%m\%s.\%ms}: {[plugin name]} {callID-TransactionID-StepID: "
-        "start(1)/end(0)}";
-    head = "Date: " + head;
-    lgraph_api::log_breakdown_head(head);
+    lgraph_api::yz_logger::profl_init(config_->log_dir);
 
     fma_common::Logger::Get().SetFormatter(
         std::shared_ptr<fma_common::LogFormatter>(new fma_common::TimedModuleLogFormatter()));

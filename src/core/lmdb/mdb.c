@@ -245,6 +245,7 @@ union semun {
 
 #include "lmdb.h"
 #include "midl.h"
+#include "lgraph/logger_C.h"
 
 #if (BYTE_ORDER == LITTLE_ENDIAN) == (BYTE_ORDER == BIG_ENDIAN)
 #error "Unknown or unsupported endianness (BYTE_ORDER)"
@@ -984,7 +985,7 @@ typedef struct MDB_page {
         pgno_t p_pgno;           /**< page number */
         struct MDB_page *p_next; /**< for in-memory list of freed pages */
     } mp_p;
-    uint16_t mp_pad;             /**< key size if this is a LEAF2 page */
+    uint16_t mp_pad; /**< key size if this is a LEAF2 page */
 /**	@defgroup mdb_page	Page Flags
  *	@ingroup internal
  *	Flags for the page headers.
@@ -1005,18 +1006,18 @@ typedef struct MDB_page {
     uint16_t mp_flags;             /**< @ref mdb_page */
 #define mp_lower mp_pb.pb.pb_lower /**< lower bound of free space */
 #define mp_upper mp_pb.pb.pb_upper /**< upper bound of free space */
-#define mp_pages                                                 \
-    mp_pb.pb_pages                 /**< number of overflow pages \
-                                   如果本page类型为overflow，则本page实际上是多个 \b连续 page的集合*/
+#define mp_pages                                 \
+    mp_pb.pb_pages /**< number of overflow pages \
+                   如果本page类型为overflow，则本page实际上是多个 \b连续 page的集合*/
     union {
         struct {
             indx_t pb_lower; /**< lower bound of free space */
             indx_t pb_upper; /**< upper bound of free space */
         } pb;
-        uint32_t pb_pages;   /**< number of overflow pages
-                                如果本page类型为overflow，则本page实际上是多个 \b连续 page的集合*/
+        uint32_t pb_pages; /**< number of overflow pages
+                              如果本page类型为overflow，则本page实际上是多个 \b连续 page的集合*/
     } mp_pb;
-    indx_t mp_ptrs[1];       /**< dynamic size */
+    indx_t mp_ptrs[1]; /**< dynamic size */
 } MDB_page;
 
 /** Size of the page header, excluding dynamic data at the end */
@@ -1465,7 +1466,7 @@ struct MDB_cursor {
         mc_pg[CURSOR_STACK]; /**< stack of pushed pages  第一个元素初始化为 0 保存的是 page 的指针*/
     indx_t mc_ki[CURSOR_STACK]; /**< stack of page indices  第一个元素初始化为 0 */
 #ifdef MDB_VL32
-    MDB_page *mc_ovpg;          /**< a referenced overflow page */
+    MDB_page *mc_ovpg; /**< a referenced overflow page */
 #define MC_OVPG(mc) ((mc)->mc_ovpg)
 #define MC_SET_OVPG(mc, pg) ((mc)->mc_ovpg = (pg))
 #else
@@ -1568,11 +1569,11 @@ struct MDB_env {
     /** Max size of a node on a page */
     unsigned int me_nodemax;
 #if !(MDB_MAXKEYSIZE)
-    unsigned int me_maxkey;           /**< max size of a key */
+    unsigned int me_maxkey; /**< max size of a key */
 #endif
-    int me_live_reader;               /**< have liveness lock in reader table */
+    int me_live_reader; /**< have liveness lock in reader table */
 #ifdef _WIN32
-    int me_pidquery;                  /**< Used in OpenProcess */
+    int me_pidquery; /**< Used in OpenProcess */
 #endif
 #ifdef MDB_USE_POSIX_MUTEX            /* Posix mutexes reside in shared mem */
 #define me_rmutex me_txns->mti_rmutex /**< Shared reader lock */
@@ -2661,7 +2662,7 @@ static int mdb_page_unspill(MDB_txn *txn, MDB_page *mp, MDB_page **ret) {
                                                  * page remains spilled until child commits
                                                  */
 
-            mdb_page_dirty(txn, np);            // 将 np 这个page 放到事务的 dirty list 中
+            mdb_page_dirty(txn, np);  // 将 np 这个page 放到事务的 dirty list 中
             np->mp_flags |= P_DIRTY;
             *ret = np;
             break;
@@ -3283,7 +3284,7 @@ static void mdb_txn_end(MDB_txn *txn, unsigned mode) {
             } else if (mode & MDB_END_SLOT) {
                 txn->mt_u.reader->mr_pid = 0;
                 txn->mt_u.reader = NULL;
-            }               /* else txn owns the slot until it does MDB_END_SLOT */
+            } /* else txn owns the slot until it does MDB_END_SLOT */
         }
         txn->mt_numdbs = 0; /* prevent further DBI activity */
         txn->mt_flags |= MDB_TXN_FINISHED;
@@ -4642,7 +4643,7 @@ static int ESECT mdb_env_open2(MDB_env *env, int prev) {
                     i = atoi(uts.release + 4);
                     if (i >= 30) break; /* 3.2.30 and newer is OK */
                 }
-            } else {                    /* 4.x and newer is OK */
+            } else { /* 4.x and newer is OK */
                 break;
             }
             env->me_flags |= MDB_FSYNCONLY;
@@ -6923,6 +6924,15 @@ static int mdb_cursor_last(MDB_cursor *mc, MDB_val *key, MDB_val *data) {
 }
 
 int mdb_cursor_get(MDB_cursor *mc, MDB_val *key, MDB_val *data, MDB_cursor_op op) {
+    char *log = "cursor_get_1";
+    LOG_BREAKDOWN(log);
+    int ret = mdb_cursor_get_inner(mc, key, data, op);
+    log = "cursor_get_0";
+    LOG_BREAKDOWN(log);
+    return ret;
+}
+
+int mdb_cursor_get_inner(MDB_cursor *mc, MDB_val *key, MDB_val *data, MDB_cursor_op op) {
     int rc;
     int exact = 0;
     int (*mfunc)(MDB_cursor *mc, MDB_val *key, MDB_val *data);
@@ -7136,6 +7146,15 @@ static int mdb_cursor_touch(MDB_cursor *mc) {
 #define MDB_NOSPILL 0x8000
 
 int mdb_cursor_put(MDB_cursor *mc, MDB_val *key, MDB_val *data, unsigned int flags) {
+    char *log = "cursor_put_1";
+    LOG_BREAKDOWN(log);
+    int ret = mdb_cursor_put_inner(mc, key, data, flags);
+    log = "cursor_put_0";
+    LOG_BREAKDOWN(log);
+    return ret;
+}
+
+int mdb_cursor_put_inner(MDB_cursor *mc, MDB_val *key, MDB_val *data, unsigned int flags) {
     MDB_env *env;
     MDB_node *leaf = NULL;
     MDB_page *fp, *mp, *sub_root = NULL;
@@ -7648,6 +7667,14 @@ new_sub:
 }  // end
 
 int mdb_cursor_del(MDB_cursor *mc, unsigned int flags) {
+    char *log = "cursor_del_1";
+    LOG_BREAKDOWN(log);
+    int ret = mdb_cursor_del_inner(mc, flags);
+    log = "cursor_del_0";
+    LOG_BREAKDOWN(log);
+    return ret;
+}
+int mdb_cursor_del_inner(MDB_cursor *mc, unsigned int flags) {
     MDB_node *leaf;
     MDB_page *mp;
     int rc;
@@ -8020,7 +8047,7 @@ static void mdb_node_shrink(MDB_page *mp, indx_t indx) {
     /* Prepare to shift upward, set len = length(subpage part to shift) */
     if (IS_LEAF2(sp)) {
         len = nsize;
-        if (nsize & 1) return;                 /* do not make the node uneven-sized */
+        if (nsize & 1) return; /* do not make the node uneven-sized */
     } else {
         xp = (MDB_page *)((char *)sp + delta); /* destination subpage */
         for (i = NUMKEYS(sp); --i >= 0;) xp->mp_ptrs[i] = sp->mp_ptrs[i] - delta;
@@ -9494,7 +9521,7 @@ int mdb_put(MDB_txn *txn, MDB_dbi dbi, MDB_val *key, MDB_val *data, unsigned int
 #endif
 #define MDB_EOF 0x10 /**< #mdb_env_copyfd1() is done reading */
 
-                     /** State needed for a double-buffering compacting copy. */
+/** State needed for a double-buffering compacting copy. */
 typedef struct mdb_copy {
     MDB_env *mc_env;
     MDB_txn *mc_txn;

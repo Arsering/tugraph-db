@@ -21,7 +21,8 @@
 #include "lgraph/lgraph_txn.h"
 #include "lgraph/lgraph_types.h"
 #include "lgraph/lgraph_vertex_iterator.h"
-#include "lgraph/lgraph_mine.h"
+#include "lgraph/lgraph_yz.h"
+#include "lgraph/logger_C.h"
 
 #ifdef _WIN32
 #pragma warning(disable : 4251)
@@ -42,10 +43,9 @@
 namespace lgraph_api {
 typedef bool GetSignature(SigSpec &sig_spec);
 typedef bool Process(lgraph_api::GraphDB &db, const std::string &input, std::string &output);
-typedef bool ProcessInTxn(lgraph_api::Transaction& txn,
-                          const std::string &input,
+typedef bool ProcessInTxn(lgraph_api::Transaction &txn, const std::string &input,
                           std::string &output);
-}
+}  // namespace lgraph_api
 
 /*
  * TuGraph can be used as a server (sever mode) or a library (embedded mode).
@@ -88,7 +88,6 @@ typedef bool ProcessInTxn(lgraph_api::Transaction& txn,
  * the Process function, in which case the call to this plugin is treated as a
  * failure and exception details are returned as a result of the request.
  */
-
 
 // ------------------
 // embed_main.cpp

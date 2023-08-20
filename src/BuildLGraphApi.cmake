@@ -75,7 +75,8 @@ set(LGRAPH_API_SRC
         lgraph_api/lgraph_vertex_iterator.cpp
         lgraph_api/lgraph_result.cpp
         lgraph_api/result_element.cpp
-        lgraph_api/lgraph_mine.cpp)
+        lgraph_api/lgraph_yz.cpp
+        lgraph_api/logger_C.cpp)
 
 set(TARGET_LGRAPH lgraph)
 

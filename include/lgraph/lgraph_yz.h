@@ -30,6 +30,37 @@ namespace lgraph_api {
 
 namespace yz_logger {
 static std::map<std::string, std::atomic<size_t>> call_counts_yz;
+enum operation_type {
+    complex_read_1 = 1,
+    complex_read_2 = 2,
+    complex_read_3 = 3,
+    complex_read_4 = 4,
+    complex_read_5 = 5,
+    complex_read_6 = 6,
+    complex_read_7 = 7,
+    complex_read_8 = 8,
+    complex_read_9 = 9,
+    complex_read_10 = 10,
+    complex_read_11 = 11,
+    complex_read_12 = 12,
+    complex_read_13 = 13,
+    complex_read_14 = 14,
+    short_read_1 = 14 + 1,
+    short_read_2 = 14 + 2,
+    short_read_3 = 14 + 3,
+    short_read_4 = 14 + 4,
+    short_read_5 = 14 + 5,
+    short_read_6 = 14 + 6,
+    short_read_7 = 14 + 7,
+    update_1 = 21 + 1,
+    update_2 = 21 + 2,
+    update_3 = 21 + 3,
+    update_4 = 21 + 4,
+    update_5 = 21 + 5,
+    update_6 = 21 + 6,
+    update_7 = 21 + 7,
+    update_8 = 21 + 8,
+};
 
 void log_breakdown(std::string& log_info);
 void profl_init(std::string& log_info);
@@ -97,9 +128,9 @@ class Profl {
     std::string GetDbiFilePath() const;
 
     inline size_t PrintModuleName(char* buf, size_t off, const std::string& module);
-};
 
-#define LOG_BREAKDOWN(log_info) lgraph_api::yz_logger::log_breakdown(log_info)
+    inline size_t GetSystemTime();
+};
 
 }  // namespace yz_logger
 }  // namespace lgraph_api

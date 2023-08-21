@@ -1673,5 +1673,5 @@ int mdb_reader_check(MDB_env *env, int *dead);
 
 #endif /* _LMDB_H_ */
 
-// #define LOG_BREAKDOWN(log) log_breakdown(log)
-#define LOG_BREAKDOWN(log)
+#define LOG_BREAKDOWN_C(log) log_breakdown_c(log)
+// #define LOG_BREAKDOWN_C(log)

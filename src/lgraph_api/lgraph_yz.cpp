@@ -43,7 +43,14 @@ struct Count {
     std::mutex visit_lock_;
     size_t id_;
 };
+// enum operation_type {
 
+// };
+
+// struct log_info {
+//     size_t time_stamp;
+//     union {}
+// };
 thread_local std::string call_desc_local = "u_i";
 thread_local size_t call_count;
 thread_local Count transaction_count;
@@ -51,13 +58,14 @@ thread_local Count step_count;
 
 const static size_t buf_capacity = 1024;
 thread_local char buf[buf_capacity];
-thread_local size_t buf_size = 0;
+volatile thread_local size_t buf_size = 0;
 
 void log_breakdown(std::string& log_info) {
     if (call_desc_local == "u_i") return;
     std::string log = "C" + std::to_string(call_count) + "-T" +
                       std::to_string(get_transaction_id()) + "-S" + std::to_string(get_step_id()) +
                       ":" + log_info + "\n";
+
     buf_size += lgraph_api::profl_logger->Formalize(buf + buf_size, get_call_desc(), log);
     bool mark = true;
     if (buf_size + 120 > buf_capacity) {
@@ -126,6 +134,7 @@ Profl::Profl(const std::string& log_dir, const std::string header)
 
 void Profl::OpenNextLogForWrite() {
     if (next_log_file_id_ != 0) {
+        log_file_->flush();
         log_file_->close();
     }
     log_rotate_size_curr_ = 0;
@@ -148,8 +157,8 @@ void Profl::FlusherThread() {
             need_flush = (waiting_logs_.size() >= batch_size_);
         }
         if (need_flush) {
-            std::deque<std::string> logs;
-            logs.swap(waiting_logs_);
+            std::deque<std::string> logs = std::move(waiting_logs_);
+            waiting_logs_ = std::deque<std::string>();
             log_count += logs.size();
             lock.unlock();
 
@@ -181,23 +190,32 @@ int Profl::AppendGolobalLog(const std::string logs_local) {
     cond_.notify_one();
     return 0;
 }
-
+inline size_t Profl::GetSystemTime() {
+    size_t hi, lo;
+    __asm__ __volatile__("rdtscp" : "=a"(lo), "=d"(hi));
+    return ((size_t)lo) | (((size_t)hi) << 32);
+}
 size_t Profl::Formalize(char* buf, const std::string& module, const std::string& log) {
+    size_t hs = 0;
     size_t buf_size = 60;
-    auto t = std::chrono::system_clock::now();
-    time_t tnow = std::chrono::system_clock::to_time_t(t);
-    tm* date = std::localtime(&tnow);
-    size_t s = std::strftime(buf, buf_size, "%d%H%M%S", date);
-    assert(s < buf_size);
+    // auto t = std::chrono::system_clock::now();
+    // volatile time_t tnow = std::chrono::system_clock::to_time_t(t);
+    // volatile tm* date = std::localtime(&tnow);
+    // volatile size_t s = std::strftime(buf, buf_size, "%d%H%M%S", date);
+    // assert(s < buf_size);
 
-    date->tm_hour = 0;
-    date->tm_min = 0;
-    date->tm_sec = 0;
-    auto midnight = std::chrono::system_clock::from_time_t(std::mktime(date));
-    size_t elapsed_ns = std::chrono::duration_cast<std::chrono::nanoseconds>(t - midnight).count();
+    // date->tm_hour = 0;
+    // date->tm_min = 0;
+    // date->tm_sec = 0;
+    // auto midnight = std::chrono::system_clock::from_time_t(std::mktime(date));
+    // size_t elapsed_ns = std::chrono::duration_cast<std::chrono::nanoseconds>(t -
+    // midnight).count();
 
-    size_t hs = s + snprintf(buf + s, buf_size - s, ".%09d: ", (int)(elapsed_ns % 1000000000));
+    // size_t hs = s + snprintf(buf + s, buf_size - s, ".%09d: ", (int)(elapsed_ns % 1000000000));
     // size_t hs = s;
+
+    volatile size_t now = GetSystemTime();
+    hs += sprintf(buf + hs, "%zu: ", now);
     size_t s_module = PrintModuleName(buf, hs, module);
     memcpy(buf + hs + s_module, log.data(), log.size());
     return hs + s_module + log.size();

@@ -6925,10 +6925,10 @@ static int mdb_cursor_last(MDB_cursor *mc, MDB_val *key, MDB_val *data) {
 
 int mdb_cursor_get(MDB_cursor *mc, MDB_val *key, MDB_val *data, MDB_cursor_op op) {
     char *log = "cursor_get_1";
-    LOG_BREAKDOWN(log);
+    LOG_BREAKDOWN_C(log);
     int ret = mdb_cursor_get_inner(mc, key, data, op);
     log = "cursor_get_0";
-    LOG_BREAKDOWN(log);
+    LOG_BREAKDOWN_C(log);
     return ret;
 }
 
@@ -7147,10 +7147,10 @@ static int mdb_cursor_touch(MDB_cursor *mc) {
 
 int mdb_cursor_put(MDB_cursor *mc, MDB_val *key, MDB_val *data, unsigned int flags) {
     char *log = "cursor_put_1";
-    LOG_BREAKDOWN(log);
+    LOG_BREAKDOWN_C(log);
     int ret = mdb_cursor_put_inner(mc, key, data, flags);
     log = "cursor_put_0";
-    LOG_BREAKDOWN(log);
+    LOG_BREAKDOWN_C(log);
     return ret;
 }
 
@@ -7668,10 +7668,10 @@ new_sub:
 
 int mdb_cursor_del(MDB_cursor *mc, unsigned int flags) {
     char *log = "cursor_del_1";
-    LOG_BREAKDOWN(log);
+    LOG_BREAKDOWN_C(log);
     int ret = mdb_cursor_del_inner(mc, flags);
     log = "cursor_del_0";
-    LOG_BREAKDOWN(log);
+    LOG_BREAKDOWN_C(log);
     return ret;
 }
 int mdb_cursor_del_inner(MDB_cursor *mc, unsigned int flags) {

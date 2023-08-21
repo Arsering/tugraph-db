@@ -12,9 +12,9 @@ extern "C" {
 // Robot_sayHi(const char *name) 函数进行name mangling 这样最终生成的动态链接库中，函数
 // Robot_sayHi(const char *name) 将生成 C 编译器的符号表示。
 
-int log_breakdown(char* log) {
+int log_breakdown_c(char* log) {
     std::string log_info = log;
-    LOG_BREAKDOWN(log_info);
+    lgraph_api::yz_logger::log_breakdown(log_info);
     return 0;
 }
 

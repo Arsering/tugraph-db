@@ -26,6 +26,10 @@
 #include <thread>
 #include <deque>
 
+namespace lgraph {
+class Value;
+}
+
 namespace lgraph_api {
 
 namespace yz_logger {
@@ -62,9 +66,10 @@ enum operation_type {
     update_8 = 21 + 8,
 };
 
-void log_breakdown(std::string& log_info);
-void profl_init(std::string& log_info);
+void print_a(int a);
 
+void profl_init(std::string& log_info);
+void log_breakdown(char* log_info);
 std::string& get_call_desc();
 
 bool set_call_desc(const std::string& call_desc_new);
@@ -88,8 +93,8 @@ class Profl {
 
     std::mutex mutex_;
     std::condition_variable cond_;
-    std::deque<std::string> waiting_logs_;
-    size_t log_rotate_size_max_ = 1024 * 1024;
+    std::deque<lgraph::Value> waiting_logs_;
+    size_t log_rotate_size_max_ = 1024 * 128;
     size_t log_rotate_size_curr_ = 0;
     size_t batch_size_ = 1024;
     size_t batch_time_ms_ = 500;
@@ -103,12 +108,12 @@ class Profl {
  public:
     Profl();
 
-    Profl(const std::string& log_dir, const std::string header);
+    Profl(const std::string& log_dir, const lgraph::Value header);
 
     ~Profl();
 
-    int AppendGolobalLog(const std::string logs_local);
-    size_t Formalize(char* buf, const std::string& module, const std::string& log);
+    int AppendGolobalLog(const lgraph::Value logs_local);
+    __always_inline size_t GetSystemTime();
 
  private:
     // Called on transaction commit, when we flush the wal. This guarantees that each
@@ -126,10 +131,6 @@ class Profl {
 
     // Get dbi file path
     std::string GetDbiFilePath() const;
-
-    inline size_t PrintModuleName(char* buf, size_t off, const std::string& module);
-
-    inline size_t GetSystemTime();
 };
 
 }  // namespace yz_logger

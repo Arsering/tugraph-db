@@ -52,7 +52,7 @@ void CppPluginManagerImpl::DoCall(lgraph_api::Transaction* txn, const std::strin
 
     lgraph_api::yz_logger::set_call_desc(name.substr(17, name.length() - 4));
     lgraph_api::yz_logger::set_call_id(call_ID);
-    std::string log = "1";  // start
+    char* log = (char*)"1";  // start
     lgraph_api::yz_logger::log_breakdown(log);
 
     if (info->func) {
@@ -64,7 +64,7 @@ void CppPluginManagerImpl::DoCall(lgraph_api::Transaction* txn, const std::strin
         r = procedure(*txn, request, output);
     }
     // For breakdown
-    log = "0";  // end
+    log = (char*)"0";  // end
     lgraph_api::yz_logger::log_breakdown(log);
 
     if (!r) throw InputError(FMA_FMT("Plugin returned false. Output: {}.", output));
